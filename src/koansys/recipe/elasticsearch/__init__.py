@@ -112,9 +112,14 @@ class Recipe(zc.recipe.egg.Eggs):
             if os.path.exists(fullname):
                 destfile = os.path.join(bindir, fn)
                 if os.path.exists(destfile):
-                    os.unlink(destfile)
+                    os.remove(destfile)
                 installed.append(destfile)
-                os.symlink(fullname, destfile)
+                script = open(destfile, 'w')
+                print >> script, "#!/bin/bash"
+                print >> script, "export ES_CLASSPATH=%s" % dst
+                print >> script, fullname
+                script.close()
+                os.chmod(destfile, stat.S_IRWXU)
 
         for path in remove_after_install:
             shutil.rmtree(path)
